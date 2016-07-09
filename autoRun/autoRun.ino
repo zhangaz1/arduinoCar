@@ -36,12 +36,20 @@ float frontDistanceRate = 1.8; // 前方安全距离与其他方向的安全距�
 float defaultSpeed = 190; // 90; // 75; // 60 - 100
 int speedStep = 1;
 float currentSpeed = defaultSpeed;
+float maxSpeed = 250/frontSpeedRate;
 
 int readDistanceDelay = 200;
 int delayTemp = 400;
 
 
 void setup() {
+  if(leftSpeedRate>1){
+    maxSpeed/=leftSpeedRate;
+  }
+  else{
+    maxSpeed*=leftSpeedRate;
+  }
+
   Serial.begin(serialCode);
   myservo.attach(myservoPin);
   myservo.write(front); // 超声波复位到前方
@@ -61,9 +69,9 @@ void setup() {
 
 
 void loop() {
-  //  checkRremote();
-  checkServo();
-  delay(delayTemp);
+  checkRremote();
+//  checkServo();
+//  delay(delayTemp);
 }
 
 void checkRremote(){
@@ -117,6 +125,9 @@ void checkServo() {
   int distanceFront = testFrontDistance();
   if (distanceFront > minDistance * frontDistanceRate) {
     currentSpeed += speedStep;
+    if(currentSpeed > maxSpeed){
+      currentSpeed = maxSpeed;
+    }
     goFront(currentSpeed);
   } 
   else {
