@@ -3,24 +3,24 @@
 
 Servo myservo;
 
-int serialCode = 9600; // 输出串口波段
-int myservoPin = 10; // 舵机转向针
+const int serialCode = 9600; // 输出串口波段
+const int myservoPin = 10; // 舵机转向针
 
-int front = 90; // 正前方角度
-int leftFront = 165; // 35; // 左前角度
-int rightFront = 15; // 145; // 右前角度
+const int front = 90; // 正前方角度
+const int leftFront = 165; // 35; // 左前角度
+const int rightFront = 15; // 145; // 右前角度
 
-int inputPin = 9;  // 定義超音波信號接收腳位
-int outputPin = 8; // 定義超音波信號發射腳位
+const int inputPin = 9;  // 定義超音波信號接收腳位
+const int outputPin = 8; // 定義超音波信號發射腳位
 
-int pinLF = 15;   // 左轮前转针位
-int pinLB = 14;   // 左轮后转针位
+const int pinLF = 15;   // 左轮前转针位
+const int pinLB = 14;   // 左轮后转针位
 
-int pinRB = 17;  // 右轮前转针位
-int pinRF = 16;  // 右轮后转针位
+const int pinRB = 17;  // 右轮前转针位
+const int pinRF = 16;  // 右轮后转针位
 
-int lPwm = 5; // 左轮pwm针
-int rPwm = 3; // 右轮pwm针
+const int lPwm = 5; // 左轮pwm针
+const int rPwm = 3; // 右轮pwm针
 
 float leftSpeedRate = 1.06; // 左轮速度比值(调节左右轮速度不一样的问题)
 float frontSpeedRate = 1.2; // 前行速度是其他速度的倍数(后退,左转/右转)
