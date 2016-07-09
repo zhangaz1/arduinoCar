@@ -21,14 +21,15 @@ int pinRF = 16;  // 右轮后转针位
 int lPwm = 5; // 左轮pwm针
 int rPwm = 3; // 右轮pwm针
 
-float leftSpeedRate = 1.08; // 左轮速度比值(调节左右轮速度不一样的问题)
+float leftSpeedRate = 1.06; // 左轮速度比值(调节左右轮速度不一样的问题)
 float frontSpeedRate = 1.2; // 前行速度是其他速度的倍数(后退,左转/右转)
-float minDistance = 35; // 30-50
-float defaultSpeed = 75; // 60 - 100
+float minDistance = 40; // 35; // 30-50
+float frontDistanceRate = 1.8; // 前方安全距离与其他方向的安全距离比率
+float defaultSpeed = 200; // 75; // 60 - 100
 int speedStep = 10;
 float currentSpeed = defaultSpeed;
 
-int readDistanceDelay = 200;
+int readDistanceDelay = 100;
 int delayTemp = 500;
 
 
@@ -58,7 +59,7 @@ void loop() {
 
 void check() {
   int distanceFront = testFrontDistance();
-  if (distanceFront > minDistance * 2) {
+  if (distanceFront > minDistance * frontDistanceRate) {
     currentSpeed += speedStep;
     goFront(currentSpeed);
   } else {
