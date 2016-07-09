@@ -10,6 +10,8 @@ int myservoPin = 10; // 舵机转向针
 
 int front = 90; // 正前方角度
 int leftFront = 165; // 35; // 左前角度
+const int irReceiverPin = 7; // 紅外線接收器 OUTPUT 訊號接在 pin 2
+IRrecv irrecv(irReceiverPin);            // 定義 IRrecv 物件來接收紅外線訊號
 int rightFront = 15; // 145; // 右前角度
 
 int inputPin = 9;  // 定義超音波信號接收腳位
@@ -64,11 +66,55 @@ void setup() {
 
 
 void loop() {
-  check();
+  checkServo();
   delay(delayTemp);
 }
+void checkRremote(){
+  if (irrecv.decode(&results)) {         // 解碼成功，收到一組紅外線訊號
+    //    showIRProtocol(&results);            // 顯示紅外線協定種類
+    //    Serial.print(results.value, HEX);
+    //    Serial.print("\n");
+    long val = results.value;
+    if(val == 0x00FF629D){
+      goFront(currentSpeed);
+    }
+    else if(val == 0x00FF02FD){
+      goBack(currentSpeed);
+    }
+    irrecv.resume();                     // 繼續收下一組紅外線訊號        
+  }  
+}
 
-void check() {
+void showIRProtocol(decode_results *results) // 顯示紅外線協定種類
+{
+  Serial.print("Protocol: ");
+
+  // 判斷紅外線協定種類
+  switch(results->decode_type) {
+  case NEC:
+    Serial.print("NEC");
+    break;
+  case SONY:
+    Serial.print("SONY");
+    break;
+  case RC5:
+    Serial.print("RC5");
+    break;
+  case RC6:
+    Serial.print("RC6");
+    break;
+  default:
+    Serial.print("Unknown encoding");  
+    Serial.print(results->decode_type);
+  }  
+  // 把紅外線編碼印到 Serial port
+  Serial.print(", irCode: ");            
+  Serial.print(results->value, HEX);    // 紅外線編碼
+  Serial.print(",  bits: ");           
+  Serial.println(results->bits);        // 紅外線編碼位元數    
+}
+
+void checkServo() {
   int distanceFront = testFrontDistance();
   if (distanceFront > minDistance * frontDistanceRate) {
     currentSpeed += speedStep;
