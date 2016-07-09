@@ -1,7 +1,13 @@
 // #include <Time.h>
 #include <Servo.h> // 引入舵机库
+#include <IRremote.h> // 引用 IRRemote 函式庫
 
 Servo myservo;
+
+const int irReceiverPin = 7;             // 紅外線接收器 OUTPUT 訊號接在 pin 2
+
+IRrecv irrecv(irReceiverPin);            // 定義 IRrecv 物件來接收紅外線訊號
+decode_results results;                  // 解碼結果將放在 decode_results 結構的 result 變數裏
 
 const int serialCode = 9600; // 输出串口波段
 const int myservoPin = 10; // 舵机转向针
@@ -38,7 +44,8 @@ int delayTemp = 400;
 void setup() {
   Serial.begin(serialCode);
   myservo.attach(myservoPin);
-  myservo.write(front);
+  myservo.write(front); // 超声波复位到前方
+  irrecv.enableIRIn(); // 啟動紅外線解碼
 
   pinMode(pinLB, OUTPUT); // 腳位 8 (PWM)
   pinMode(pinLF, OUTPUT); // 腳位 9 (PWM)
@@ -54,16 +61,56 @@ void setup() {
 
 
 void loop() {
-  check();
-  delay(delayTemp);
+  checkRremote();
+  //  checkServo();
+  //  delay(delayTemp);
 }
 
-void check() {
+void checkRremote(){
+  if (irrecv.decode(&results)) {         // 解碼成功，收到一組紅外線訊號
+    showIRProtocol(&results);            // 顯示紅外線協定種類
+    irrecv.resume();                     // 繼續收下一組紅外線訊號        
+  }  
+}
+
+void showIRProtocol(decode_results *results) // 顯示紅外線協定種類
+{
+  Serial.print("Protocol: ");
+
+  // 判斷紅外線協定種類
+  switch(results->decode_type) {
+  case NEC:
+    Serial.print("NEC");
+    break;
+  case SONY:
+    Serial.print("SONY");
+    break;
+  case RC5:
+    Serial.print("RC5");
+    break;
+  case RC6:
+    Serial.print("RC6");
+    break;
+  default:
+    Serial.print("Unknown encoding");  
+    Serial.print(results->decode_type);
+  }  
+
+  // 把紅外線編碼印到 Serial port
+  Serial.print(", irCode: ");            
+  Serial.print(results->value, HEX);    // 紅外線編碼
+  Serial.print(",  bits: ");           
+  Serial.println(results->bits);        // 紅外線編碼位元數    
+}
+
+
+void checkServo() {
   int distanceFront = testFrontDistance();
   if (distanceFront > minDistance * frontDistanceRate) {
     currentSpeed += speedStep;
     goFront(currentSpeed);
-  } else {
+  } 
+  else {
     currentSpeed = defaultSpeed;
 
     int distanceLeft = testLeftFrontDistance();
@@ -72,13 +119,16 @@ void check() {
     if (distanceLeft > distanceRight) {
       if (distanceLeft > minDistance) {
         turnLeft(currentSpeed);
-      } else {
+      } 
+      else {
         goBack(currentSpeed);
       }
-    } else {
+    } 
+    else {
       if (distanceRight > minDistance) {
         turnRight(currentSpeed);
-      } else {
+      } 
+      else {
         goBack(currentSpeed);
       }
     }
@@ -161,3 +211,9 @@ void logDistanceTest(int direction, float distance) {
   Serial.print(distance);
   Serial.print('\n');
 }
+
+
+
+
+
+
