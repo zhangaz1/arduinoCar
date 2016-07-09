@@ -3,37 +3,37 @@
 #include <IRremote.h> // 引用 IRRemote 函式庫
 
 Servo myservo;
-
-const int irReceiverPin = 7;             // 紅外線接收器 OUTPUT 訊號接在 pin 2
-
-IRrecv irrecv(irReceiverPin);            // 定義 IRrecv 物件來接收紅外線訊號
 decode_results results;                  // 解碼結果將放在 decode_results 結構的 result 變數裏
 
 const int serialCode = 9600; // 输出串口波段
+
+const int rPwm = 3; // 右轮pwm针
+const int lPwm = 5; // 左轮pwm针
+
+const int irReceiverPin = 7; // 紅外線接收器 OUTPUT 訊號接在 pin 2
+IRrecv irrecv(irReceiverPin);            // 定義 IRrecv 物件來接收紅外線訊號
+
+const int outputPin = 8; // 定義超音波信號發射腳位
+const int inputPin = 9;  // 定義超音波信號接收腳位
+
 const int myservoPin = 10; // 舵机转向针
+
+const int pinLB = 14;   // 左轮后转针位
+const int pinLF = 15;   // 左轮前转针位
+
+const int pinRF = 16;  // 右轮后转针位
+const int pinRB = 17;  // 右轮前转针位
 
 const int front = 90; // 正前方角度
 const int leftFront = 165; // 35; // 左前角度
 const int rightFront = 15; // 145; // 右前角度
-
-const int inputPin = 9;  // 定義超音波信號接收腳位
-const int outputPin = 8; // 定義超音波信號發射腳位
-
-const int pinLF = 15;   // 左轮前转针位
-const int pinLB = 14;   // 左轮后转针位
-
-const int pinRB = 17;  // 右轮前转针位
-const int pinRF = 16;  // 右轮后转针位
-
-const int lPwm = 5; // 左轮pwm针
-const int rPwm = 3; // 右轮pwm针
 
 float leftSpeedRate = 1.06; // 左轮速度比值(调节左右轮速度不一样的问题)
 float frontSpeedRate = 1.2; // 前行速度是其他速度的倍数(后退,左转/右转)
 float backSpeedRate = 0.95; // 倒退速度比
 float minDistance = 30; // 35; // 30-50
 float frontDistanceRate = 1.8; // 前方安全距离与其他方向的安全距离比率
-float defaultSpeed = 90; // 75; // 60 - 100
+float defaultSpeed = 190; // 90; // 75; // 60 - 100
 int speedStep = 1;
 float currentSpeed = defaultSpeed;
 
@@ -61,14 +61,23 @@ void setup() {
 
 
 void loop() {
-  checkRremote();
-  //  checkServo();
-  //  delay(delayTemp);
+  //  checkRremote();
+  checkServo();
+  delay(delayTemp);
 }
 
 void checkRremote(){
   if (irrecv.decode(&results)) {         // 解碼成功，收到一組紅外線訊號
-    showIRProtocol(&results);            // 顯示紅外線協定種類
+    //    showIRProtocol(&results);            // 顯示紅外線協定種類
+    //    Serial.print(results.value, HEX);
+    //    Serial.print("\n");
+    long val = results.value;
+    if(val == 0x00FF629D){
+      goFront(currentSpeed);
+    }
+    else if(val == 0x00FF02FD){
+      goBack(currentSpeed);
+    }
     irrecv.resume();                     // 繼續收下一組紅外線訊號        
   }  
 }
@@ -211,6 +220,12 @@ void logDistanceTest(int direction, float distance) {
   Serial.print(distance);
   Serial.print('\n');
 }
+
+
+
+
+
+
 
 
 
