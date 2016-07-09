@@ -34,23 +34,24 @@ float frontDistanceRate = 1.8; // 前方安全距离与其他方向的安全距�
 float defaultSpeed = 190; // 90; // 75; // 60 - 100
 int speedStep = 1;
 float currentSpeed = defaultSpeed;
-float maxSpeed = 250/frontSpeedRate;
+float maxSpeed = 250 / frontSpeedRate;
 
 int readDistanceDelay = 200;
 int delayTemp = 400;
 
 
 void setup() {
-  if(leftSpeedRate>1){
-    maxSpeed/=leftSpeedRate;
+  if (leftSpeedRate > 1) {
+    maxSpeed /= leftSpeedRate;
   }
-  else{
-    maxSpeed*=leftSpeedRate;
+  else {
+    maxSpeed *= leftSpeedRate;
   }
 
   Serial.begin(serialCode);
   myservo.attach(myservoPin);
-  myservo.write(front);
+  myservo.write(front); // 超声波复位到前方
+  //  irrecv.enableIRIn(); // 啟動紅外線解碼
 
   pinMode(pinLB, OUTPUT); // 腳位 8 (PWM)
   pinMode(pinLF, OUTPUT); // 腳位 9 (PWM)
@@ -66,23 +67,24 @@ void setup() {
 
 
 void loop() {
+  //  checkRremote();
   checkServo();
   delay(delayTemp);
 }
-void checkRremote(){
+void checkRremote() {
   if (irrecv.decode(&results)) {         // 解碼成功，收到一組紅外線訊號
     //    showIRProtocol(&results);            // 顯示紅外線協定種類
     //    Serial.print(results.value, HEX);
     //    Serial.print("\n");
     long val = results.value;
-    if(val == 0x00FF629D){
+    if (val == 0x00FF629D) {
       goFront(currentSpeed);
     }
-    else if(val == 0x00FF02FD){
+    else if (val == 0x00FF02FD) {
       goBack(currentSpeed);
     }
-    irrecv.resume();                     // 繼續收下一組紅外線訊號        
-  }  
+    irrecv.resume();                     // 繼續收下一組紅外線訊號
+  }
 }
 
 void showIRProtocol(decode_results *results) // 顯示紅外線協定種類
@@ -90,39 +92,39 @@ void showIRProtocol(decode_results *results) // 顯示紅外線協定種類
   Serial.print("Protocol: ");
 
   // 判斷紅外線協定種類
-  switch(results->decode_type) {
-  case NEC:
-    Serial.print("NEC");
-    break;
-  case SONY:
-    Serial.print("SONY");
-    break;
-  case RC5:
-    Serial.print("RC5");
-    break;
-  case RC6:
-    Serial.print("RC6");
-    break;
-  default:
-    Serial.print("Unknown encoding");  
-    Serial.print(results->decode_type);
-  }  
+  switch (results->decode_type) {
+    case NEC:
+      Serial.print("NEC");
+      break;
+    case SONY:
+      Serial.print("SONY");
+      break;
+    case RC5:
+      Serial.print("RC5");
+      break;
+    case RC6:
+      Serial.print("RC6");
+      break;
+    default:
+      Serial.print("Unknown encoding");
+      Serial.print(results->decode_type);
+  }
   // 把紅外線編碼印到 Serial port
-  Serial.print(", irCode: ");            
+  Serial.print(", irCode: ");
   Serial.print(results->value, HEX);    // 紅外線編碼
-  Serial.print(",  bits: ");           
-  Serial.println(results->bits);        // 紅外線編碼位元數    
+  Serial.print(",  bits: ");
+  Serial.println(results->bits);        // 紅外線編碼位元數
 }
 
 void checkServo() {
   int distanceFront = testFrontDistance();
   if (distanceFront > minDistance * frontDistanceRate) {
     currentSpeed += speedStep;
-    if(currentSpeed > maxSpeed){
+    if (currentSpeed > maxSpeed) {
       currentSpeed = maxSpeed;
     }
     goFront(currentSpeed);
-  } 
+  }
   else {
     currentSpeed = defaultSpeed;
 
@@ -132,15 +134,15 @@ void checkServo() {
     if (distanceLeft > distanceRight) {
       if (distanceLeft > minDistance) {
         turnLeft(currentSpeed);
-      } 
+      }
       else {
         goBack(currentSpeed);
       }
-    } 
+    }
     else {
       if (distanceRight > minDistance) {
         turnRight(currentSpeed);
-      } 
+      }
       else {
         goBack(currentSpeed);
       }
