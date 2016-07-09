@@ -21,12 +21,12 @@ int pinRF = 16;  // 右轮后转针位
 int lPwm = 5; // 左轮pwm针
 int rPwm = 3; // 右轮pwm针
 
-int leftSpeedRate = 1.95; // 左轮速度比值(调节左右轮速度不一样的问题)
-int frontSpeedRate = 1.2; // 前行速度是其他速度的倍数(后退,左转/右转)
-int minDistance = 40; // 30-50
-int defaultSpeed = 90; // 60 - 100
+float leftSpeedRate = 1.08; // 左轮速度比值(调节左右轮速度不一样的问题)
+float frontSpeedRate = 1.2; // 前行速度是其他速度的倍数(后退,左转/右转)
+float minDistance = 35; // 30-50
+float defaultSpeed = 75; // 60 - 100
 int speedStep = 10;
-int currentSpeed = defaultSpeed;
+float currentSpeed = defaultSpeed;
 
 int readDistanceDelay = 200;
 int delayTemp = 500;
@@ -83,28 +83,28 @@ void check() {
   }
 }
 
-void turnLeft(int speed) {
+void turnLeft(float speed) {
   leftGoBack(speed);
   rightGoFront(speed);
 }
 
-void turnRight(int speed) {
+void turnRight(float speed) {
   leftGoFront(speed);
   rightGoBack(speed);
 }
 
-void goFront(int speed) {
+void goFront(float speed) {
   speed *= frontSpeedRate;
   leftGoFront(speed);
   rightGoFront(speed);
 }
 
-void goBack(int speed) {
+void goBack(float speed) {
   leftGoBack(speed);
   rightGoBack(speed);
 }
 
-void leftGoFront(int speed) {
+void leftGoFront(float speed) {
   digitalWrite(pinLF, HIGH);
   digitalWrite(pinLB, LOW);
   analogWrite(lPwm, speed * leftSpeedRate);
@@ -115,12 +115,12 @@ void leftGoBack(int speed) {
   analogWrite(lPwm, speed * leftSpeedRate);
 }
 
-void rightGoFront(int speed) {
+void rightGoFront(float speed) {
   digitalWrite(pinRF, HIGH);
   digitalWrite(pinRB, LOW);
   analogWrite(rPwm, speed);
 }
-void rightGoBack(int speed) {
+void rightGoBack(float speed) {
   digitalWrite(pinRF, LOW);
   digitalWrite(pinRB, HIGH);
   analogWrite(rPwm, speed);
@@ -135,7 +135,7 @@ int testLeftFrontDistance() {
 int testRightFrontDistance() {
   return testDistance(rightFront);
 }
-int testDistance(int direction) {
+float testDistance(int direction) {
   myservo.write(direction);
   delay(readDistanceDelay);
 
@@ -147,11 +147,17 @@ int testDistance(int direction) {
   float distance = pulseIn(inputPin, HIGH);  // 讀差相差時間
   distance = distance / 5.8 / 10;  // 將時間轉為距離距离（單位：公分）
 
+  logDistanceTest(direction, distance);
+
+  return distance;
+}
+
+void logDistanceTest(int direction, float distance) {
+
   Serial.print(direction);
   Serial.print('\n');
   Serial.print(distance);
   Serial.print('\n');
   Serial.print('\n');
   Serial.print('\n');
-  return distance;
 }
