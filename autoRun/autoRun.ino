@@ -1,7 +1,9 @@
 // #include <Time.h>
 #include <Servo.h> // 引入舵机库
+#include <IRremote.h> // 引用 IRRemote 函式庫
 
 Servo myservo;
+decode_results results;                  // 解碼結果將放在 decode_results 結構的 result 變數裏
 
 int serialCode = 9600; // 输出串口波段
 int myservoPin = 10; // 舵机转向针
@@ -27,15 +29,23 @@ float frontSpeedRate = 1.2; // 前行速度是其他速度的倍数(后退,左�
 float backSpeedRate = 0.95; // 倒退速度比
 float minDistance = 30; // 35; // 30-50
 float frontDistanceRate = 1.8; // 前方安全距离与其他方向的安全距离比率
-float defaultSpeed = 90; // 75; // 60 - 100
+float defaultSpeed = 190; // 90; // 75; // 60 - 100
 int speedStep = 1;
 float currentSpeed = defaultSpeed;
+float maxSpeed = 250/frontSpeedRate;
 
 int readDistanceDelay = 200;
 int delayTemp = 400;
 
 
 void setup() {
+  if(leftSpeedRate>1){
+    maxSpeed/=leftSpeedRate;
+  }
+  else{
+    maxSpeed*=leftSpeedRate;
+  }
+
   Serial.begin(serialCode);
   myservo.attach(myservoPin);
   myservo.write(front);
@@ -62,8 +72,12 @@ void check() {
   int distanceFront = testFrontDistance();
   if (distanceFront > minDistance * frontDistanceRate) {
     currentSpeed += speedStep;
+    if(currentSpeed > maxSpeed){
+      currentSpeed = maxSpeed;
+    }
     goFront(currentSpeed);
-  } else {
+  } 
+  else {
     currentSpeed = defaultSpeed;
 
     int distanceLeft = testLeftFrontDistance();
@@ -72,13 +86,16 @@ void check() {
     if (distanceLeft > distanceRight) {
       if (distanceLeft > minDistance) {
         turnLeft(currentSpeed);
-      } else {
+      } 
+      else {
         goBack(currentSpeed);
       }
-    } else {
+    } 
+    else {
       if (distanceRight > minDistance) {
         turnRight(currentSpeed);
-      } else {
+      } 
+      else {
         goBack(currentSpeed);
       }
     }
@@ -161,3 +178,5 @@ void logDistanceTest(int direction, float distance) {
   Serial.print(distance);
   Serial.print('\n');
 }
+
+
