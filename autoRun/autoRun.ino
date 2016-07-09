@@ -1,3 +1,4 @@
+// #include <Time.h>
 #include <Servo.h> // 引入舵机库
 
 Servo myservo;
@@ -23,14 +24,15 @@ int rPwm = 3; // 右轮pwm针
 
 float leftSpeedRate = 1.06; // 左轮速度比值(调节左右轮速度不一样的问题)
 float frontSpeedRate = 1.2; // 前行速度是其他速度的倍数(后退,左转/右转)
-float minDistance = 40; // 35; // 30-50
+float backSpeedRate = 0.95; // 倒退速度比
+float minDistance = 30; // 35; // 30-50
 float frontDistanceRate = 1.8; // 前方安全距离与其他方向的安全距离比率
-float defaultSpeed = 200; // 75; // 60 - 100
-int speedStep = 10;
+float defaultSpeed = 90; // 75; // 60 - 100
+int speedStep = 1;
 float currentSpeed = defaultSpeed;
 
-int readDistanceDelay = 100;
-int delayTemp = 500;
+int readDistanceDelay = 200;
+int delayTemp = 400;
 
 
 void setup() {
@@ -48,7 +50,6 @@ void setup() {
 
   pinMode(inputPin, INPUT);    // 定義超音波輸入腳位
   pinMode(outputPin, OUTPUT);  // 定義超音波輸出腳位
-
 }
 
 
@@ -113,7 +114,7 @@ void leftGoFront(float speed) {
 void leftGoBack(int speed) {
   digitalWrite(pinLF, LOW);
   digitalWrite(pinLB, HIGH);
-  analogWrite(lPwm, speed * leftSpeedRate);
+  analogWrite(lPwm, speed * leftSpeedRate * backSpeedRate);
 }
 
 void rightGoFront(float speed) {
@@ -124,7 +125,7 @@ void rightGoFront(float speed) {
 void rightGoBack(float speed) {
   digitalWrite(pinRF, LOW);
   digitalWrite(pinRB, HIGH);
-  analogWrite(rPwm, speed);
+  analogWrite(rPwm, speed * backSpeedRate);
 }
 
 int testFrontDistance() {
@@ -154,11 +155,9 @@ float testDistance(int direction) {
 }
 
 void logDistanceTest(int direction, float distance) {
-
+  //  Serial.print(now());
   Serial.print(direction);
-  Serial.print('\n');
+  Serial.print(": ");
   Serial.print(distance);
-  Serial.print('\n');
-  Serial.print('\n');
   Serial.print('\n');
 }
