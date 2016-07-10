@@ -63,8 +63,6 @@ void setup() {
 
 
 void loop() {
-  testFrontDistance();
-  return;
   checkServo();
   delay(delayTemp);
 }
