@@ -23,7 +23,7 @@ const int front = 79; // 正前方角度
 const int leftFront = 139; // 35; // 左前角度
 const int rightFront = 19; // 145; // 右前角度
 
-float leftSpeedRate = 1.03; // 左轮速度比值(调节左右轮速度不一样的问题)
+float leftSpeedRate = 0.88; // 左轮速度比值(调节左右轮速度不一样的问题)
 float frontSpeedRate = 1.1; // 前行速度是其他速度的倍数(后退,左转/右转)
 float backSpeedRate = 0.97; // 倒退速度比
 float minDistance = 35; // 35; // 30-50
@@ -33,12 +33,13 @@ int speedStep = 3;
 float currentSpeed = defaultSpeed;
 float maxSpeed = 250 / frontSpeedRate;
 
-int readDistanceDelay = 300;
+int readDistanceDelay = 200;
 int delayTemp = 100;
 
 int limit = 2; // 前方距离小于最小距离连续次数
 int added = 0; // 累计次数
 
+String lastDirection = "front";
 
 void setup() {
   if (leftSpeedRate > 1) {
@@ -75,19 +76,10 @@ void checkServo() {
   int distanceFront = testFrontDistance();
   if (distanceFront > minDistance * frontDistanceRate) {
     added = 0;
-    currentSpeed += speedStep;
-    if (currentSpeed > maxSpeed) {
-      currentSpeed = maxSpeed;
-    }
+
     goFront(currentSpeed);
   }
   else {
-    if (currentSpeed > defaultSpeed) {
-      currentSpeed = defaultSpeed;
-    } else {
-      currentSpeed -= speedStep;
-    }
-
     if (++added < limit) {
       return;
     }
@@ -115,24 +107,40 @@ void checkServo() {
 }
 
 void turnLeft(float speed) {
+  updateCurrentSpeed("left");
   leftGoBack(speed);
   rightGoFront(speed);
 }
 
 void turnRight(float speed) {
+  updateCurrentSpeed("right");
   leftGoFront(speed);
   rightGoBack(speed);
 }
 
 void goFront(float speed) {
+  updateCurrentSpeed("front");
   speed *= frontSpeedRate;
   leftGoFront(speed);
   rightGoFront(speed);
 }
 
 void goBack(float speed) {
+  updateCurrentSpeed("back");
   leftGoBack(speed);
   rightGoBack(speed);
+}
+
+void updateCurrentSpeed(String direction) {
+  if (lastDirection == direction) {
+    currentSpeed += speedStep;
+    if (currentSpeed > maxSpeed) {
+      currentSpeed = maxSpeed;
+    }
+  } else {
+    lastDirection = direction;
+    currentSpeed = defaultSpeed;
+  }
 }
 
 void leftGoFront(float speed) {
