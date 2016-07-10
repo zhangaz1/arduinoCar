@@ -27,13 +27,13 @@ float leftSpeedRate = 0.88; // 左轮速度比值(调节左右轮速度不一样
 float frontSpeedRate = 1.1; // 前行速度是其他速度的倍数(后退,左转/右转)
 float backSpeedRate = 0.97; // 倒退速度比
 float minDistance = 35; // 35; // 30-50
-float frontDistanceRate = 1.8; // 前方安全距离与其他方向的安全距离比率
+float frontDistanceRate = 1.5; // 前方安全距离与其他方向的安全距离比率
 float defaultSpeed = 90; // 90; // 75; // 60 - 100
 int speedStep = 3;
 float currentSpeed = defaultSpeed;
 float maxSpeed = 250 / frontSpeedRate;
 
-int readDistanceDelay = 200;
+int readDistanceDelay = 250;
 int delayTemp = 100;
 
 int limit = 2; // 前方距离小于最小距离连续次数
