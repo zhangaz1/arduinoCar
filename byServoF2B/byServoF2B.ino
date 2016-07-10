@@ -19,22 +19,25 @@ const int pinLF = 17;   // 左轮前转针位
 const int pinRF = 14;  // 右轮后转针位
 const int pinRB = 15;  // 右轮前转针位
 
-const int front = 78; // 正前方角度
-const int leftFront = 138; // 35; // 左前角度
-const int rightFront = 18; // 145; // 右前角度
+const int front = 79; // 正前方角度
+const int leftFront = 139; // 35; // 左前角度
+const int rightFront = 19; // 145; // 右前角度
 
-float leftSpeedRate = 1; // 左轮速度比值(调节左右轮速度不一样的问题)
+float leftSpeedRate = 1.03; // 左轮速度比值(调节左右轮速度不一样的问题)
 float frontSpeedRate = 1.1; // 前行速度是其他速度的倍数(后退,左转/右转)
-float backSpeedRate = 0.95; // 倒退速度比
+float backSpeedRate = 0.97; // 倒退速度比
 float minDistance = 35; // 35; // 30-50
 float frontDistanceRate = 1.8; // 前方安全距离与其他方向的安全距离比率
 float defaultSpeed = 90; // 90; // 75; // 60 - 100
-int speedStep = 1;
+int speedStep = 3;
 float currentSpeed = defaultSpeed;
 float maxSpeed = 250 / frontSpeedRate;
 
-int readDistanceDelay = 200;
-int delayTemp = 400;
+int readDistanceDelay = 300;
+int delayTemp = 100;
+
+int limit = 2; // 前方距离小于最小距离连续次数
+int added = 0; // 累计次数
 
 
 void setup() {
@@ -71,6 +74,7 @@ void loop() {
 void checkServo() {
   int distanceFront = testFrontDistance();
   if (distanceFront > minDistance * frontDistanceRate) {
+    added = 0;
     currentSpeed += speedStep;
     if (currentSpeed > maxSpeed) {
       currentSpeed = maxSpeed;
@@ -78,7 +82,15 @@ void checkServo() {
     goFront(currentSpeed);
   }
   else {
-    currentSpeed = defaultSpeed;
+    if (currentSpeed > defaultSpeed) {
+      currentSpeed = defaultSpeed;
+    } else {
+      currentSpeed -= speedStep;
+    }
+
+    if (++added < limit) {
+      return;
+    }
 
     int distanceLeft = testLeftFrontDistance();
     int distanceRight = testRightFrontDistance();
