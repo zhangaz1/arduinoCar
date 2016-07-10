@@ -48,9 +48,6 @@ void setup() {
 
   Serial.begin(serialCode);
 
-  pinMode(irReceiverPin, INPUT);
-  irrecv.enableIRIn(); // 啟動紅外線解碼
-
   pinMode(pinLB, OUTPUT); // 腳位 8 (PWM)
   pinMode(pinLF, OUTPUT); // 腳位 9 (PWM)
   pinMode(pinRB, OUTPUT); // 腳位 10 (PWM)
@@ -61,11 +58,15 @@ void setup() {
 
   pinMode(inputPin, INPUT);    // 定義超音波輸入腳位
   pinMode(outputPin, OUTPUT);  // 定義超音波輸出腳位
+
+  pinMode(irReceiverPin, INPUT);
+  irrecv.enableIRIn(); // 啟動紅外線解碼
 }
 
 
 void loop() {
-  checkRremote();
+  goFront(currentSpeed);
+  //  checkRremote();
   //  checkServo();
   //  delay(delayTemp);
 }
